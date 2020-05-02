@@ -16,13 +16,22 @@ const Label = styled.span`
   font-weight: bold;
 `;
 
-export const List = ({ items }) => (
-  <ListWrapper>
-    {items.map((item) => (
-      <ListItem key={item.label}>
-        <Label>{item.label}</Label>
-        {item.value}
-      </ListItem>
-    ))}
-  </ListWrapper>
+const Title = styled.h2`
+  padding: 10px 0;
+  border-bottom: 1px solid lightGrey;
+  font-size: 15px;
+`;
+
+export const List = ({ items, title }) => (
+  <>
+    <Title>{title}</Title>
+    <ListWrapper>
+      {items.map((item) => (
+        <ListItem key={item.label}>
+          <Label>{item.label}</Label>
+          {item.value}
+        </ListItem>
+      ))}
+    </ListWrapper>
+  </>
 );
