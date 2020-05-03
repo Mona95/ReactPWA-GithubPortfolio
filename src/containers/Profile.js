@@ -14,12 +14,33 @@ const Avatar = styled.img`
   border-radius: 10px;
 `;
 
+const PageNumberLi = styled.li`
+  margin-right: 0.3em;
+  color: blue;
+  user-select: none;
+  cursor: pointer;
+`;
+
+const PageNumberList = styled.ul`
+  margin: 0px auto;
+  list-style: none;
+  display: flex;
+`;
+
 export class Profile extends Component {
   state = {
     data: {},
     repositories: [],
     loading: true,
+    currentPage: 1,
+    repoPerPage: 10,
     error: "",
+  };
+
+  handleClick = (event) => {
+    this.setState({
+      currentPage: Number(event.target.id),
+    });
   };
 
   componentDidMount() {
@@ -46,10 +67,18 @@ export class Profile extends Component {
     }
   }
   render() {
-    const { data, loading, repositories, error } = this.state;
-    if (loading || error) {
-      return <div>{loading ? "Loading..." : error}</div>;
-    }
+    const {
+      data,
+      loading,
+      repositories,
+      currentPage,
+      repoPerPage,
+      error,
+    } = this.state;
+
+    let indexOfLastRepo = currentPage * repoPerPage,
+      indexOfFirstRepo = indexOfLastRepo - repoPerPage,
+      currentRepoPage = repositories.slice(indexOfFirstRepo, indexOfLastRepo);
 
     const items = [
       {
@@ -64,16 +93,33 @@ export class Profile extends Component {
       { label: "bio", value: data.bio },
     ];
 
-    const projects = repositories.map((repository) => ({
+    const pageNumbers = [];
+    for (let i = 1; i <= Math.ceil(repositories.length / repoPerPage); i++) {
+      pageNumbers.push(i);
+    }
+
+    const renderPageNumbers = pageNumbers.map((number) => {
+      return (
+        <PageNumberLi key={number} id={number} onClick={this.handleClick}>
+          {number}
+        </PageNumberLi>
+      );
+    });
+
+    const projects = currentRepoPage.map((repository) => ({
       label: repository.name,
       value: <Link url={repository.html_url} title="Github URL" />,
     }));
-    console.log(projects);
+
+    if (loading || error) {
+      return <div>{loading ? "Loading..." : error}</div>;
+    }
     return (
       <ProfileWrapper>
         <Avatar src={data.avatar_url} alt="avatar" />
         <List title="Profile" items={items} />
         <List title="Projects" items={projects} />
+        <PageNumberList>{renderPageNumbers}</PageNumberList>
       </ProfileWrapper>
     );
   }
